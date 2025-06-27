@@ -10,6 +10,7 @@ import {
   playerDataContext,
 } from "./common";
 import s from "./styles.module.scss";
+import cx from "classnames";
 import { getCachedSettings, getProfile } from "../../lib/destinyApi";
 import { DestinyComponentType } from "../../additionalDestinyTypes";
 import { usePlayersParam, useLocalStorage } from "../../lib/hooks";
@@ -17,6 +18,7 @@ import { CoreSettingsConfiguration } from "bungie-api-ts/core/interfaces";
 import Icon from "../../components/Icon";
 import PlayerSearch, { SearchResult } from "../../components/PlayerSearch";
 import { useHistory, useLocation } from "react-router-dom";
+import { Membership } from "../../types";
 
 function playerDataReducer(
   state: PlayerDataState,
@@ -25,15 +27,21 @@ function playerDataReducer(
   const index = state.findIndex(
     (p) =>
       p.profile.data?.userInfo.membershipId ===
-      action.data.profile.data?.userInfo.membershipId
+      action.key
   );
 
   const working = [...state];
 
-  if (index > -1) {
-    working[index] = action.data;
-  } else {
-    working.push(action.data);
+  if (action.action === "add" && action.data) {
+    if (index > -1) {
+      working[index] = action.data;
+    } else {
+      working.push(action.data);
+    }
+  } else if (action.action === "remove") {
+    if (index > -1) {
+      working.splice(index, 1);
+    }
   }
 
   return working;
@@ -59,6 +67,7 @@ const useSortedPlayers = (
 
 const Triumphs = function () {
   const [modalIsOpen, setModalOpen] = React.useState(false);
+  const [settingsIsOpen, setSettingsIsOpen] = useState(false);
   const history = useHistory();
   const rlocation = useLocation();
 
@@ -94,12 +103,12 @@ const Triumphs = function () {
         DestinyComponentType.PresentationNodes,
         DestinyComponentType.Records,
       ]).then((data) => {
-        setPlayerData({ key: membershipId, data });
+        setPlayerData({ action: "add", key: membershipId, data });
       });
     });
   }, [players]);
 
-  const setActiveProfiles = (pp: any[]) => {
+  const setActiveProfiles = (pp: Membership[]) => {
     const newPlayersParam = pp
       .map((player) => `${player.membershipType}/${player.membershipId}`)
       .join(",");
@@ -108,10 +117,17 @@ const Triumphs = function () {
   };
 
   const addNewPlayer = (player: SearchResult) => {
-    setActiveProfiles([...players, player]);
+    setActiveProfiles([...players, player] as Membership[]);
   };
 
   const playerData = useSortedPlayers(unsortedPlayerData, players);
+
+  const removePlayer = (membershipId: string) => {
+    setPlayerData({ action: "remove", key: membershipId });
+    setActiveProfiles(players.filter((p: Membership) => {
+      return !(p.membershipId === membershipId);
+    }));
+  };
 
   const settings = useMemo(() => {
     return {
@@ -138,45 +154,43 @@ const Triumphs = function () {
     <div key="triumphs">
       <settingsContext.Provider value={settings}>
         <playerDataContext.Provider value={playerData}>
-          <div className={s.triumphsRoot}>
-            <h2>Triumphs</h2>
+          <div className={s.triumphsRoot} onClick={(ev) => {
+            ev.preventDefault();
+            ev.stopPropagation();
+            setSettingsIsOpen(false);
+          }}>
+            <div className={cx(s.settingsPanel, settingsIsOpen && s.settingsPanelOpen)}>
+              <label>
+                <input
+                  type="checkbox"
+                  checked={showZeroPointTriumphs}
+                  onChange={(ev) => setShowZeroPointTriumphs(ev.target.checked)}
+                />{" "}
+                Show zero point triumphs
+              </label>
 
-            <label>
-              <input
-                type="checkbox"
-                checked={showZeroPointTriumphs}
-                onChange={(ev) => setShowZeroPointTriumphs(ev.target.checked)}
-              />{" "}
-              Show zero point triumphs
-            </label>
+              <br />
 
-            <br />
-
-            <label>
-              <input
-                type="checkbox"
-                checked={showCompletedTriumphs}
-                onChange={(ev) => setShowCompletedTriumphs(ev.target.checked)}
-              />{" "}
-              Show triumphs completed by all
-            </label>
-
-            <br />
-            <br />
-
-            <button
-              className={s.addPlayerButton}
-              onClick={() => setModalOpen(true)}
-            >
-              Add player
-            </button>
-
-            <br />
-            <br />
+              <label>
+                <input
+                  type="checkbox"
+                  checked={showCompletedTriumphs}
+                  onChange={(ev) => setShowCompletedTriumphs(ev.target.checked)}
+                />{" "}
+                Show triumphs completed by all
+              </label>
+            </div>
 
             <div className={s.triumphs}>
               {rootTriumphsNodeHash && (
-                <Node presentationNodeHash={rootTriumphsNodeHash} isRoot />
+                <Node presentationNodeHash={rootTriumphsNodeHash} isRoot
+                  onClick={(ev) => {
+                    ev.preventDefault();
+                    setSettingsIsOpen(!settingsIsOpen);
+                  }}
+                  onAddPlayer={() => setModalOpen(true)}
+                  onRemovePlayer={removePlayer}
+                  />
               )}
               {rootSealsNodeHash && (
                 <Node presentationNodeHash={rootSealsNodeHash} isRoot />
@@ -204,7 +218,7 @@ const Triumphs = function () {
                 onClick={() => setModalOpen(false)}
               >
                 <div className={s.modalCloseInner}>
-                  <Icon className={s.modalCloseIcon} name="times" />
+                  <Icon name="times" />
                 </div>
               </button>
             </div>

@@ -29,7 +29,7 @@ const Icon: React.FC<IconProps> = ({
       [light ? "true" : "false"]: "fal",
       [duotone ? "true" : "false"]: "fad",
       [brand ? "true" : "false"]: "fab",
-    }["true"] || "far";
+    }["true"] || "fa";
 
   return (
     <span>

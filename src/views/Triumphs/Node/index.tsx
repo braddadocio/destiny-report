@@ -16,6 +16,7 @@ import {
   DestinyPresentationNodeDefinitionCollection,
 } from "../../../lib/definitions/types";
 import { useLocalStorage } from "../../../lib/hooks";
+import Icon from "../../../components/Icon";
 
 const scoreCache: Record<string, number> = {};
 function scoreFromPresentationNode(
@@ -51,8 +52,11 @@ function scoreFromPresentationNode(
 
 const Node: React.FC<{
   isRoot?: boolean;
+  onClick?: (ev: React.MouseEvent) => void;
+  onAddPlayer?: () => void;
+  onRemovePlayer?: (membershipId: string) => void;
   presentationNodeHash: number;
-}> = ({ isRoot, presentationNodeHash }) => {
+}> = ({ isRoot, onClick, onAddPlayer, onRemovePlayer, presentationNodeHash }) => {
   const { showZeroPointTriumphs, showCompletedTriumphs } = useSettings();
   const playerData = usePlayerData();
 
@@ -99,9 +103,18 @@ const Node: React.FC<{
     return null;
   }
 
+  const nodeSpan = (
+    <>
+      {node.displayProperties.name}
+      <span className={s.nodePointScore}>
+      {" - "}
+      {totalChildrenPointScore.toLocaleString()} pts
+      </span>
+    </>
+  );
   return node ? (
     <div className={cx(s.node, isCollapsed && s.isCollapsed)}>
-      {!isRoot && (
+      {false && !isRoot && (
         <div className={s.side}>
           <button
             className={s.collapseButton}
@@ -115,22 +128,42 @@ const Node: React.FC<{
       <div className={s.main}>
         <div className={cx(s.splitHeading, isRoot && s.sticky)}>
           <p
-            className={s.nodeHeading}
+            className={cx(s.nodeHeading, s.pinnedLeft)}
             onClick={() => !isRoot && setIsCollapsed(!isCollapsed)}
           >
-            {node.displayProperties.name}
-
-            <span className={s.nodePointScore}>
-              {" - "}
-              {totalChildrenPointScore.toLocaleString()} pts
-            </span>
+            {onClick && (
+              <a
+                className={s.nodeLink}
+                href="#"
+                title={'Click for options'}
+                onClick={(ev) => {
+                  ev.preventDefault();
+                  ev.stopPropagation();
+                  onClick(ev);
+                }}>{nodeSpan}</a>
+            ) || nodeSpan}
           </p>
 
           <NodePlayerData
             isRoot={isRoot}
             node={node}
+            onRemovePlayer={isRoot && onClick && onRemovePlayer ? onRemovePlayer : undefined}
             totalChildrenPointScore={totalChildrenPointScore}
           />
+          {isRoot && onAddPlayer && (
+            <button
+              className={s.addPlayerButton}
+              onClick={(ev) => {
+                ev.preventDefault();
+                ev.stopPropagation();
+                onAddPlayer();
+              }}
+            >
+              <div className={s.addPlayerButtonInner}>
+                <Icon name="plus" />
+              </div>
+            </button>
+          )}
         </div>
 
         {!isCollapsed && (
@@ -154,9 +187,10 @@ const Node: React.FC<{
 
 const NodePlayerData: React.FC<{
   isRoot?: boolean;
+  onRemovePlayer?: (membershipId: string) => void;
   node: DestinyPresentationNodeDefinition;
   totalChildrenPointScore: number;
-}> = ({ isRoot, node, totalChildrenPointScore }) => {
+}> = ({ isRoot, node, onRemovePlayer, totalChildrenPointScore }) => {
   const playerData = usePlayerData();
 
   const {
@@ -171,11 +205,11 @@ const NodePlayerData: React.FC<{
   return (
     <div className={s.players}>
       {playerData.map((player, index) => {
-        if (!player) {
+        if (!player?.profile?.data?.userInfo?.membershipId) {
           return undefined;
         }
 
-        const key = player.profile?.data?.userInfo.membershipId || index;
+        const key = player.profile.data.userInfo.membershipId;
 
         const completedScore = calculateCompletedScoreFromNode(
           node,
@@ -190,7 +224,17 @@ const NodePlayerData: React.FC<{
           <div className={s.player} key={key}>
             {isRoot && (
               <>
-                <strong>{player.profile.data?.userInfo.displayName}</strong>
+                <strong>{player.profile.data.userInfo.displayName}</strong>
+                {onRemovePlayer && (
+                  <>
+                    {' '}
+                    <button
+                      className={s.playerRemoveButton}
+                      onClick={() => onRemovePlayer(key)}>
+                      <Icon name="times" />
+                    </button>
+                  </>
+                )}
                 <br />
               </>
             )}

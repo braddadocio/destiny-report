@@ -5,7 +5,6 @@
   display: flex;
   justify-content: space-between;
   transition: background-color 50ms ease-in-out;
-  padding-left: 8px;
   font-size: 14px;
   border-top: 1px solid #2a2a2a;
   padding-bottom: 10px;
@@ -21,7 +20,10 @@
 }
 
 .recordBody {
-  max-width: 400px;
+  padding-left: 52px;
+  padding-right: 8px;
+  width: 400px;
+  margin: -10px 0;
 }
 
 .recordTitle {
@@ -33,13 +35,13 @@
 }
 
 .recordDescription {
-  margin-top: 4px;
+  padding-top: 4px;
   color: #dadada;
 }
 
 .recordExpiration {
   composes: recordDescription;
-  margin-top: 8px;
+  padding-top: 8px;
   font-style: italic;
 }
 

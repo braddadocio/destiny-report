@@ -21,8 +21,9 @@ export interface TriumphsSettings {
 
 export type PlayerDataState = DestinyProfileResponse[];
 export interface PlayerDataAction {
+  action: "add" | "remove";
   key: string;
-  data: DestinyProfileResponse;
+  data?: DestinyProfileResponse;
 }
 
 export const settingsContext = createContext<TriumphsSettings>({

@@ -3,7 +3,6 @@
 
 .node {
   display: flex;
-  margin-bottom: 10px;
 
   .node & {
     font-size: 0.9em;
@@ -11,12 +10,30 @@
 
   &.isCollapsed {
     opacity: 0.5;
-    margin-bottom: 8px !important;
   }
 }
 
-.node .node {
-  margin-bottom: 16px;
+.splitHeading .nodeHeading {
+  padding-left: 20px;
+}
+
+.nodeChildren .splitHeading .nodeHeading {
+  padding-left: 28px;
+}
+
+.nodeChildren .nodeChildren .splitHeading .nodeHeading {
+  padding-left: 36px;
+}
+
+.nodeChildren .nodeChildren .nodeChildren .splitHeading .nodeHeading {
+  padding-left: 44px;
+}
+
+.pinnedLeft {
+  position: sticky;
+  left: 0;
+  z-index: 4; /* Ensure pinned cells are above other cells */
+  background-color: $bg; /* Or any other background color */
 }
 
 .side {
@@ -24,26 +41,51 @@
   flex: 0;
 }
 
-.main {
-  flex: 1;
+.nodeLink {
+  text-decoration: none;
+  color: $textColor;
 }
 
 .nodeHeading {
   font-size: 1.3em;
   font-weight: 600;
   margin: 0;
+  padding-top: 8px;
+  width: 400px;
 }
 
 .nodeChildren {
-  margin-top: 8px;
+  padding-top: 4px;
+}
+
+.addPlayerButton {
+  border-radius: $borderRadius;
+  background: rgba(white, 0.1);
+  color: inherit;
+  appearance: none;
+  border: none;
+  font-size: 20px;
+  padding: 0;
+
+  &:hover {
+    background: rgba(white, 0.2);
+  }
+}
+
+.addPlayerButtonInner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 1.5em;
+  width: 1.5em;
 }
 
 .collapseButton {
-  background: rgba(white, 0.1);
-  width: 2px;
+  background: rgba(white, 0.2);
+  width: 4px;
 
   border: 0 solid $bg;
-  border-width: 0 8px;
+  border-width: 0 4px;
 
   box-sizing: content-box;
   height: 100%;
@@ -55,11 +97,12 @@
   transition: 150ms ease-in-out all;
 
   &:hover {
-    background: rgba(white, 0.2);
+    background: rgba(white, 0.4);
   }
 }
 
 .splitHeading {
+  cursor: pointer;
   display: flex;
   justify-content: space-between;
 
@@ -74,7 +117,7 @@
   position: sticky;
   top: 0;
   z-index: 10;
-  padding: 16px 0;
+  padding: 4px 0;
 
   &,
   &:hover {

@@ -1,7 +1,7 @@
 @import "../../variables.scss";
 
 .triumphsRoot {
-  padding: 0 20px;
+  padding: 0 0;
   margin: auto;
 }
 
@@ -23,6 +23,23 @@
   &:hover {
     background: rgba(white, 0.2);
   }
+}
+
+.settingsPanel {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: rgba(black, 0.8);
+  color: $textColor;
+  z-index: 20;
+  padding: $containerPadding;
+  transition: transform 150ms ease-in-out;
+  transform: translateY(-100%);
+}
+
+.settingsPanelOpen {
+  transform: translateY(0);
 }
 
 .modal {

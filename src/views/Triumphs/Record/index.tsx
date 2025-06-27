@@ -4,7 +4,10 @@ import { DestinyRecordDefinition } from "bungie-api-ts/destiny2/interfaces";
 import { useDefinitions } from "../../../lib/definitions";
 import RecordPlayerData from "./RecordPlayerData";
 
+import cx from "classnames";
 import s from "./styles.module.scss";
+import ns from "../Node/styles.module.scss";
+
 import {
   useSettings,
   scoreFromRecord,
@@ -32,7 +35,7 @@ const RecordBody: React.FC<{
     .filter(Boolean);
 
   return (
-    <div className={s.recordBody}>
+    <div className={cx(s.recordBody, ns.pinnedLeft)}>
       <div className={s.recordTitle}>
         {record.displayProperties.name || <em>No name</em>}
         {" - "}

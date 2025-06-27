@@ -1,6 +1,6 @@
-# [destiny.report](https://destiny.report)
+# [https://destiny-triumphs.bc63.org](https://destiny-triumphs.bc63.org)
 
-This project is the destiny.report frontend, built using React, Typescript, CSS Modules, etc.
+This project is the [https://destiny-triumphs.bc63.org](https://destiny-triumphs.bc63.org) frontend, built using React, Typescript, CSS Modules, etc.
 
 ## Quick start
 
@@ -31,4 +31,8 @@ Your app is ready to be deployed!
 
 ## Contributing
 
-Contributions are always welcome, but I recommend reaching out to me on Twitter [@joshhunt](https://twitter.com/joshhunt) on the off chance you embark on anything substantial. 
+Contributions are always welcome; both issues and pull requests.
+
+## Credits
+
+This code originated from the destiny.report website ([Github link](https://github.com/joshhunt/destiny-report)), originally developed by Josh Hunt.

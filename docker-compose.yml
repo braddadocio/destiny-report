@@ -1,8 +1,8 @@
 services:
-  destiny-report:
+  destiny-triumphs:
     build: .
     env_file:
       - .env.local
-    image: destiny-report:restored
+    image: destiny-triumphs
     ports:
       - "3000:3000"

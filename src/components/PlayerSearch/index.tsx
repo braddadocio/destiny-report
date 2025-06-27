@@ -10,6 +10,7 @@ import { MembershipTypeIcon } from "../Icon";
 import styles from "./styles.module.scss";
 
 export interface SearchResult {
+  bungieName: string;
   displayName: string;
   membershipId: string;
   membershipType: MembershipType;
@@ -27,7 +28,7 @@ interface PlayerSearchProps {
 const renderSuggestion = (suggestion: SearchResult) => (
   <div>
     <MembershipTypeIcon type={suggestion.membershipType} />{" "}
-    {suggestion.displayName}
+    {suggestion.displayName}{" ("}{suggestion.bungieName}{")"}
   </div>
 );
 
@@ -46,7 +47,7 @@ export default function PlayerSearch({ onPlayerSelected }: PlayerSearchProps) {
     value,
   }: SuggestionsFetchRequestedParams) => {
     searchValueRef.current = value;
-    const url = `https://elastic.destinytrialsreport.com/players/0/${value}`;
+    const url = `https://elastic.destinytrialsreport.com/players/0/${encodeURIComponent(value)}`;
 
     const res = await fetch(url);
     const results: SearchResult[] = await res.json();
@@ -56,6 +57,7 @@ export default function PlayerSearch({ onPlayerSelected }: PlayerSearchProps) {
       return;
     }
 
+    const uniqueResults = new Map<string, SearchResult>();
     const cleanedResults = results.map((player) => {
       if (
         player.crossSaveOverride &&
@@ -68,6 +70,13 @@ export default function PlayerSearch({ onPlayerSelected }: PlayerSearchProps) {
       }
 
       return player;
+    }).filter((player) => {
+      const key = `${player.membershipId}-${player.membershipType}`;
+      if (!uniqueResults.has(key)) {
+        uniqueResults.set(key, player);
+        return true;
+      }
+      return false;
     });
 
     setSuggestions(cleanedResults);
